@@ -1,0 +1,55 @@
+name: Merge Example
+
+on: 
+  push:
+    branches:
+      - main
+    paths:
+       - typescript-project/**
+  workflow_dispatch:
+
+jobs:
+  merge:
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: typescript-project
+
+    steps:
+      - uses: actions/checkout@v2
+        
+      # Setup Nodejs
+      - name: Setup Node.js 16
+        uses: actions/setup-node@v2
+        with:
+          node-version: "16.x"
+          cache: "npm"
+          cache-dependency-path: typescript-project/yarn.lock
+
+      # Install Yarn 
+      - name: Install Yarn 
+        run: npm install --global yarn 
+
+      # Install libraries 
+      - name: Install dependenies 
+        run: yarn install --frozen-lockfile
+
+      # Run Linting
+      - name: Run Linting
+        run: yarn lint
+
+      # Compile the code 
+      - name: Build project
+        run: yarn build
+        
+      # Run tests
+      - name: Run tests
+        run: yarn test
+
+      - run: git config user.email "12220043.gcit@rub.edu.bt"
+      - run: git config user.name "talop01"
+      - run: yarn version --patch -message "Bump version to %s"
+
+      - run: git push
+      - run: git push --follow-tags
